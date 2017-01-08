@@ -14,8 +14,10 @@ set(CORE_SRCS
 
 include_directories(include/)
 
-file(GLOB TESTS src/*.c)
-foreach(t ${TESTS})
+add_library(auraclient STATIC ${CORE_SRCS})
 
-    add_executable()
+file(GLOB TESTS src/tests/*.c)
+foreach(t ${TESTS})
+    get_filename_component(NAME ${t} NAME_WE)
+    add_executable(${NAME} ${t})
 endforeach()

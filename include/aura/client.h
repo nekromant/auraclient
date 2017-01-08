@@ -3,7 +3,8 @@
 
 #include <stdint.h>
 #include <stdio.h>
-#define dbg(fmt, ...) printf(fmt, ## __VA_ARGS__)
+
+#define aura_cli_dbg(fmt, ...) printf(fmt, ## __VA_ARGS__)
 
 
 #define AURA_ID_BITS 16

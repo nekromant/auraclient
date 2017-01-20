@@ -43,6 +43,7 @@ int aura_evt_start(struct aura_object *o)
 	/* Now, let's serialize object id */
 	aura_evt_write((void *)&o->id, sizeof(aura_id_t));
 	last_obj_len=0;
+    cur_obj = o;
 	return 0;
 }
 
@@ -77,7 +78,7 @@ void aura_eventqueue_peek(void *buf, aura_length_t len)
 	while (len) {
 		int tocopy = min_t(int, len,
 			CIRC_CNT_TO_END(head, pos, AURA_EVENT_BUFFER_SIZE));
-			memcpy(&iobuf[pos], buf, tocopy);
+			memcpy(buf, &iobuf[pos], tocopy);
 			pos += tocopy;
 			pos &= (AURA_EVENT_BUFFER_SIZE - 1);
 			buf+=tocopy;

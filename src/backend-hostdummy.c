@@ -23,4 +23,6 @@ void aura_panic(const char *fmt, ...)
     va_start(ap, fmt);
     vprintf(fmt, ap);
     va_end(ap);
+    printf("\n -------------- \n");
+    exit(1);
 }

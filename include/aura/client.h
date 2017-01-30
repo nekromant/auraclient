@@ -120,10 +120,10 @@ typedef uint32_t aura_length_t;
 #define aura_put_u32(v) aura_ret_put(uint32_t, v)
 #define aura_put_u64(v) aura_ret_put(uint64_t, v)
 
-#define aura_put_i8(v)  aura_ret_put(int8_t, ret, v)
-#define aura_put_i16(v) aura_ret_put(int16_t, ret, v)
-#define aura_put_i32(v) aura_ret_put(int32_t, ret, v)
-#define aura_put_i64(v) aura_ret_put(int64_t, ret, v)
+#define aura_put_i8(v)  aura_ret_put(int8_t,  v)
+#define aura_put_i16(v) aura_ret_put(int16_t, v)
+#define aura_put_i32(v) aura_ret_put(int32_t, v)
+#define aura_put_i64(v) aura_ret_put(int64_t, v)
 
 
 #define aura_get_bin(len) \
@@ -135,7 +135,7 @@ struct aura_object {
         const char* name;
         const char* arg;
         const char* ret;
-        void (*method)(void *arg);
+        void (*method)(const void *arg);
 };
 
 #define aura_object_is_method(o) (o->arg != NULL)
@@ -144,7 +144,7 @@ struct aura_object {
 
 #ifndef AURA_METHOD
 #define AURA_METHOD(_name, arglist, retlist)                            \
-        void aura_method_ ## _name(void *arg);              \
+        void aura_method_ ## _name(const void *arg);              \
         static struct aura_object aura_obj_method_ ## _name = {         \
                 .name = #_name,                                         \
                 .arg = arglist,                                         \
@@ -154,7 +154,7 @@ struct aura_object {
         void AURA_CONSTRUCTOR register_method_##_name() {                     \
                 aura_register(&aura_obj_method_##_name);                \
         };                                                              \
-        void aura_method_##_name(void *arg)
+        void aura_method_##_name(const void *arg)
 
 #endif
 
@@ -173,12 +173,14 @@ struct aura_object {
 int aura_get_registry(struct aura_object ***reg);
 void aura_register(struct aura_object *o);
 int aura_evt_start(struct aura_object *o);
-void aura_evt_write(const char *buf, aura_length_t len);
+void aura_evt_write(const void *buf, aura_length_t len);
 void aura_evt_finish();
 void aura_panic(const char *fmt, ...);
-int aura_call(aura_id_t id, void *arg);
+int aura_call(aura_id_t id, const void *arg);
 struct aura_object *aura_registry_lookup(aura_id_t id);
+struct aura_object *aura_registry_lookup_byname(const char *name);
 void aura_eventqueue_read(void *buf, aura_length_t len);
 void aura_eventqueue_peek(void *buf, aura_length_t len);
+aura_length_t aura_eventqueue_size();
 aura_length_t aura_eventqueue_next();
 #endif

@@ -52,7 +52,7 @@ int aura_evt_start(struct aura_object *o)
  * @param buf buffer pointer
  * @param len buffer length
  */
-void aura_evt_write(const char *buf, aura_length_t len)
+void aura_evt_write(const void *buf, aura_length_t len)
 {
 	last_obj_len += len;
 	while (len) {
@@ -108,4 +108,9 @@ aura_length_t aura_eventqueue_next()
 	if (!o)
 		return 0;
 	return o->retlen + sizeof(aura_id_t);
+}
+
+aura_length_t aura_eventqueue_size()
+{
+	return CIRC_CNT(head, tail, AURA_EVENT_BUFFER_SIZE);
 }

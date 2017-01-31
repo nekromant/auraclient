@@ -160,12 +160,12 @@ struct aura_object {
 
 #ifndef AURA_EVENT
 #define AURA_EVENT(_name, retlist)                       \
-        struct aura_object g_aura_obj_event_##_name = { \
+        struct aura_object _name = { \
                 .name = #_name,                          \
                 .ret = retlist,                         \
         };                                              \
         void AURA_CONSTRUCTOR register_event_##_name() {                     \
-                aura_register(&g_aura_obj_event_##_name);                \
+                aura_register(&_name);                \
         };
 
 #endif
@@ -183,4 +183,5 @@ void aura_eventqueue_read(void *buf, aura_length_t len);
 void aura_eventqueue_peek(void *buf, aura_length_t len);
 aura_length_t aura_eventqueue_size();
 aura_length_t aura_eventqueue_next();
+void aura_raise_event(struct aura_object *o, ...);
 #endif

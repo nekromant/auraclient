@@ -27,6 +27,7 @@ struct usb_info_packet {
         uint16_t io_buf_size;
         uint8_t  dev_to_host_epnum;
         uint8_t  host_to_dev_epnum;
+        uint16_t poll_ms;
 } __attribute__((packed));
 
 unsigned char *bpos;
@@ -49,7 +50,7 @@ struct aura_ipacket_header {
 };
 
 
-static void send_object(struct aura_object *o)
+static int send_object(struct aura_object *o)
 {
         int namelen=0;
         int arglen=0;
@@ -85,7 +86,7 @@ static void send_object(struct aura_object *o)
         ptr += retlen;
 
         dest[ptr++]=0;
-        aura_usb_control_write(dest, destlen);
+        return aura_usb_control_write(dest, destlen);
 }
 
 int aura_usb_parse_setup(unsigned char data[8])
@@ -104,36 +105,45 @@ int aura_usb_parse_setup(unsigned char data[8])
         {
         case RQ_GET_DEV_INFO: {
                 struct usb_info_packet p;
+                memset(&p, 0x0, sizeof(p));
                 p.flags = 0;
                 p.num_objs = ocount;
                 p.io_buf_size = 512;
-                aura_usb_control_write(&p, sizeof(p));
-                break;
+                p.id_bits = sizeof(aura_id_t) * 8;
+                p.len_bits = sizeof(aura_length_t) * 8;
+                p.poll_ms = 100;
+                return aura_usb_control_write(&p, sizeof(p));
         };
+
         case RQ_GET_OBJ_INFO:
-        {
-                send_object(o);
-                break;
-        }
+                return send_object(o);
+
         case RQ_GET_EVENT:
         {
                 aura_id_t id;
                 char *tmp = NULL;
                 aura_length_t datalen = aura_eventqueue_next(&id);
-                if (datalen)
+                if (datalen) {
                         tmp = alloca(datalen);
-                aura_eventqueue_read(tmp, datalen);
-                aura_usb_control_write(tmp, datalen);
+                        aura_eventqueue_read(tmp, datalen);
+                        return aura_usb_control_write(tmp, datalen);
+                }
                 break;
         }
         case RQ_PUT_CALL:
         {
-                char *args = alloca(pck->wLength);
-                aura_usb_control_read(args, pck->wLength);
+                struct aura_object *o = aura_registry_lookup(pck->wIndex);
+                /* TODO: Do we really need length checking here? */
+                if (!o)
+                        return -1;
+                int len = pck->wLength;
+                char *args = alloca(len);
+                aura_usb_control_read(args, len);
                 aura_call(pck->wIndex, args);
-                break;
+                return 0;
         }
         }
-        return 0;
+
+        return -1;
 
 }

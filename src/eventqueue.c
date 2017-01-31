@@ -102,7 +102,7 @@ aura_length_t aura_eventqueue_next()
 {
 	aura_id_t id;
 	if (!CIRC_CNT(head, tail, AURA_EVENT_BUFFER_SIZE))
-		return AURA_ID_INVALID;
+		return 0;
 	aura_eventqueue_peek(&id, sizeof(aura_id_t));
 	struct aura_object *o = aura_registry_lookup(id);
 	if (!o)

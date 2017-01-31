@@ -5,7 +5,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 
-#define CONFIG_LIB_AURA_OCOUNT 8
+#define CONFIG_LIB_AURA_OCOUNT 16
 
 static struct aura_object *registry[CONFIG_LIB_AURA_OCOUNT];
 static uint8_t lastid;
